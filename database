@@ -1,0 +1,161 @@
+Microsoft Windows [Version 10.0.19045.6332]
+(c) Microsoft Corporation. All rights reserved.
+
+C:\xampp\mysql\bin>mysql -u root -p
+Enter password:
+Welcome to the MariaDB monitor.  Commands end with ; or \g.
+Your MariaDB connection id is 108
+Server version: 10.4.32-MariaDB mariadb.org binary distribution
+
+Copyright (c) 2000, 2018, Oracle, MariaDB Corporation Ab and others.
+
+Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
+
+MariaDB [(none)]> Create database dbpos;
+ERROR 1007 (HY000): Can't create database 'dbpos'; database exists
+MariaDB [(none)]> use dbpos;
+Database changed
+MariaDB [dbpos]> create table kartu (
+    -> id int auto_increment primary key,
+    -> kode varchar(6) unique,
+    -> nama varchar(30) not null,
+    -> diskon double,
+    -> iuran double;
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near '' at line 6
+MariaDB [dbpos]> create table kartu (
+    -> id int auto_increment primary key,
+    -> kode varchar (6) unique,
+    -> nama varchar (30) not null,
+    -> diskon double,
+    -> iuran double);
+Query OK, 0 rows affected (0.028 sec)
+
+MariaDB [dbpos]> create table pelanggan (
+    -> id int auto_increment primary key,
+    -> kode varchar (10) unique,
+    -> nama varchar (45),
+    -> jk char (1),
+    -> tmp_lahir varchar (30),
+    -> tgl_lahir date,
+    -> email varchar(45)
+    -> kartu_id int not null refereces kartu(id));
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 'int not null refereces kartu(id))' at line 9
+MariaDB [dbpos]> create table pelanggan (
+    -> id int auto_increment primary key,
+    -> kode varchar (10) unique,
+    -> nama varchar (45),
+    -> jk char (1),
+    -> tmp_lahir varchar (30),
+    -> tgl_lahir date,
+    -> email varchar(45)
+    -> kartu_id int not null references kartu(id));
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 'int not null references kartu(id))' at line 9
+MariaDB [dbpos]> create table pelanggan (
+    -> id int auto_increment primary key,
+    -> kode varchar (10) unique,
+    -> nama varchar (45),
+    -> jk char (1),
+    -> tmp_lahir varchar (30),
+    -> tgl_lahir date,
+    -> email varchar(45)
+    -> kartu_id int not null references kartu(id) );
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 'int not null references kartu(id) )' at line 9
+MariaDB [dbpos]> create table pelanggan (
+    -> id int auto_increment primary key,
+    -> kode varchar (10) unique,
+    -> nama varchar (45),
+    -> jk char (1),
+    -> tmp_lahir varchar (30),
+    -> tgl_lahir date,
+    -> email varchar(45)
+    -> ,
+    -> kartu_id int not null,
+    -> FOREIGN KEY (kartu_id) REFERENCES kartu(id) );
+Query OK, 0 rows affected (0.033 sec)
+
+MariaDB [dbpos]> create table pesanan (
+    -> id int not null auto_increment primary key,
+    -> tanggal date,
+    -> total double,
+    -> pelanggan_id int not null references pelanggan (id) );
+Query OK, 0 rows affected (0.008 sec)
+
+MariaDB [dbpos]> create table pembayaran (
+    -> id int not null auto_increment primary key,
+    -> nokuitansi varchar (10) unique,
+    -> tanggal date,
+    -> jumlah double,
+    -> ke int,
+    -> pesanan_id int not null REFERENCES pesanan(id) );
+Query OK, 0 rows affected (0.033 sec)
+
+MariaDB [dbpos]> create table jenis_produk (
+    -> id int not null auto_increment primary key,
+    -> nama varchar (45) );
+Query OK, 0 rows affected (0.011 sec)
+
+MariaDB [dbpos]> create table produk (
+    -> id int auto_increment primary key,
+    -> kode varchar (10) unique,
+    -> nama varchar (45) not null,
+    -> harga_beli double,
+    -> harga_jual double,
+    -> stok INT,
+    -> min_stok INT,
+    -> jenis_produk_id int not null,
+    -> foreign key (jenis_produk_id) REFERENCES jenis_produk(id) );
+Query OK, 0 rows affected (0.032 sec)
+
+MariaDB [dbpos]> create table pesanan_items (
+    -> CREATE TABLE pesanan_items (
+    ->     id INT AUTO_INCREMENT PRIMARY KEY,
+    ->     pesanan_id INT NOT NULL,
+    ->     produk_id INT NOT NULL,
+    ->     qty INT,
+    ->     harga DOUBLE,
+    ->     FOREIGN KEY (pesanan_id) REFERENCES pesanan(id),
+    ->     FOREIGN KEY (produk_id) REFERENCES produk(id)
+    -> );
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 'CREATE TABLE pesanan_items (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    pesan...' at line 2
+MariaDB [dbpos]> CREATE TABLE pesanan_items (
+    -> id INT auto_increment primary key,
+    -> pesanan_id int not null,
+    -> produk_id int not null,
+    -> qty int,
+    -> harga double,
+    -> foreign key (pesanan_id) references pesanan(id),
+    -> foreign key (produk_id) references produk(id));
+Query OK, 0 rows affected (0.029 sec)
+
+MariaDB [dbpos]> create table vendor (
+    -> id INT AUTO_INCREMENT PRIMARY KEY,
+    -> kode varchar (10) UNIQUE,
+    -> nama varchar(45) not null,
+    -> alamat varchar(100),
+    -> kontak VARCHAR(30),
+    -> telp VARCHAR(15),
+    -> email VARCHAR(45));
+Query OK, 0 rows affected (0.027 sec)
+
+MariaDB [dbpos]> CREATE TABLE pembelian (
+    -> id INT AUTO_INCREMENT PRIMARY KEY,
+    -> tanggal DATE,
+    -> total double,
+    -> produk_id INT NOT NULL,
+    -> vendor_id INT NOT NULL,
+    -> FOREIGN KEY (prosuk_id) REFERENCES produk(id),
+    -> FOREIGN KEY (vendor_id) REFERENCES vendor(id));
+ERROR 1072 (42000): Key column 'prosuk_id' doesn't exist in table
+MariaDB [dbpos]> CREATE TABLE pembelian (
+    -> id INT AUTO_INCREMENT PRIMARY KEY,
+    -> tanggal DATE,
+    -> total double,
+    -> produk_id INT NOT NULL,
+    -> vendor_id INT NOT NULL,
+    -> FOREIGN KEY (produk_id) REFERENCES produk(id),
+    -> FOREIGN KEY (vendor_id) REFERENCES vendor(id));
+Query OK, 0 rows affected (0.032 sec)
+
+MariaDB [dbpos]>
