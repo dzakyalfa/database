@@ -1,0 +1,322 @@
+Microsoft Windows [Version 10.0.19045.6332]
+(c) Microsoft Corporation. All rights reserved.
+
+C:\xampp\mysql\bin>mysql -u root -p
+Enter password:
+Welcome to the MariaDB monitor.  Commands end with ; or \g.
+Your MariaDB connection id is 79
+Server version: 10.4.32-MariaDB mariadb.org binary distribution
+
+Copyright (c) 2000, 2018, Oracle, MariaDB Corporation Ab and others.
+
+Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
+
+MariaDB [(none)]> > SELECT SUM(harga_beli * stok) as total from produk; //menghitung total
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near '> SELECT SUM(harga_beli * stok) as total from produk' at line 1
+    -> asset
+    -> ;
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near '//menghitung total
+asset' at line 1
+MariaDB [(none)]> > SELECT * FROM produk WHERE harga_beli * stok > 20000000;
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near '> SELECT * FROM produk WHERE harga_beli * stok > 20000000' at line 1
+MariaDB [(none)]>  SELECT * FROM produk WHERE harga_beli * stok > 20000000;
+ERROR 1046 (3D000): No database selected
+MariaDB [(none)]> use dbkoperasi;
+Database changed
+MariaDB [dbkoperasi]>  SELECT * FROM produk WHERE harga_beli * stok > 20000000;
++----+------+------------------+------------+------------+------+----------+-----------------+
+| id | kode | nama             | harga_beli | harga_jual | stok | min_stok | jenis_produk_id |
++----+------+------------------+------------+------------+------+----------+-----------------+
+|  2 | TV02 | Televisi 40 inch |    5500000 |    7440000 |    4 |        2 |               1 |
+|  3 | K001 | Kulkas 2 pintu   |    3500000 |    4680000 |    6 |        2 |               1 |
+|  6 | PC01 | PC Desktop HP    |    7000000 |    9600000 |    9 |        2 |               5 |
+|  8 | AC01 | Notebook Acer    |    8000000 |   10800000 |    7 |        2 |               5 |
+|  9 | LN01 | Notebook Lenovo  |    9000000 |   12000000 |    9 |        2 |               5 |
+| 10 | L004 | Laptop HP        |   12000000 |   13000000 |   20 |        5 |               5 |
++----+------+------------------+------------+------------+------+----------+-----------------+
+6 rows in set (0.000 sec)
+
+MariaDB [dbkoperasi]> SELECT SUM(stok - min_stok) as selisih from produk;
++---------+
+| selisih |
++---------+
+|      83 |
++---------+
+1 row in set (0.001 sec)
+
+MariaDB [dbkoperasi]> SELECT sum(stok) as total_asset from produk;
++-------------+
+| total_asset |
++-------------+
+|         123 |
++-------------+
+1 row in set (0.000 sec)
+
+MariaDB [dbkoperasi]>  SELECT * FROM pelanggan WHERE YEAR(tgl_lahir) BETWEEN 1999 AND
+    -> 2004;
+Empty set (0.001 sec)
+
+MariaDB [dbkoperasi]> SELECT * FROM pelanggan WHERE YEAR(tgl_lahir)=1998;
+Empty set (0.000 sec)
+
+MariaDB [dbkoperasi]> SELECT * FROM pelanggan WHERE MONTH(tgl_lahir)=08;
+Empty set (0.000 sec)
+
+MariaDB [dbkoperasi]> SELECT nama, tmp_lahir, tgl_lahir, (YEAR(NOW())-YEAR(tgl_lahir)) AS umur
+    -> FROM pelanggan;
++---------------+------------+------------+------+
+| nama          | tmp_lahir  | tgl_lahir  | umur |
++---------------+------------+------------+------+
+| Agung Sedayu  | Solo       | 2010-01-01 |   15 |
+| Pandan Wangi  | Yogyakarta | 1950-01-01 |   75 |
+| Sekar Mirah   | Kediri     | 1983-02-20 |   42 |
+| Swandaru Geni | Kediri     | 1981-01-04 |   44 |
+| Pradabashu    | Pati       | 1985-04-02 |   40 |
+| Gayatri Dwi   | Jakarta    | 1987-11-28 |   38 |
+| Dewi Gyat     | Jakarta    | 1988-12-01 |   37 |
+| Andre Haru    | Surabaya   | 1990-07-15 |   35 |
+| Ahmad Hasan   | Surabaya   | 1992-10-15 |   33 |
+| Cassanndra    | Belfast    | 1990-11-20 |   35 |
++---------------+------------+------------+------+
+10 rows in set (0.001 sec)
+
+MariaDB [dbkoperasi]> SELECT COUNT(*) AS jumlah_pelanggan
+    -> FROM pelanggan WHERE YEAR(tgl_lahir) = 1998;
++------------------+
+| jumlah_pelanggan |
++------------------+
+|                0 |
++------------------+
+1 row in set (0.000 sec)
+
+MariaDB [dbkoperasi]> SELECT COUNT(*) AS jumlah_pelanggan
+    -> FROM pelanggan
+    -> WHERE jk = 'P'
+    -> AND tmp_lahir = 'Jakarta';
++------------------+
+| jumlah_pelanggan |
++------------------+
+|                2 |
++------------------+
+1 row in set (0.000 sec)
+
+MariaDB [dbkoperasi]> SELECT (SELECT SUM(stok) FROM produk WHERE harga_jual < 10000) AS total_stok;
++------------+
+| total_stok |
++------------+
+|         59 |
++------------+
+1 row in set (0.000 sec)
+
+MariaDB [dbkoperasi]> SELECT (SELECT COUNT(*) FROM produk WHERE kode LIKE 'K%') AS jumlah_produk;
++---------------+
+| jumlah_produk |
++---------------+
+|             1 |
++---------------+
+1 row in set (0.001 sec)
+
+MariaDB [dbkoperasi]> SELECT (SELECT AVG(harga_jual) FROM produk WHERE harga_jual > 1000000) AS
+    -> rata_rata_harga;
++-------------------+
+| rata_rata_harga   |
++-------------------+
+| 8937142.857142856 |
++-------------------+
+1 row in set (0.001 sec)
+
+MariaDB [dbkoperasi]> SELECT (SELECT MAX(stok) FROM produk) AS stok_terbesar;
++---------------+
+| stok_terbesar |
++---------------+
+|            53 |
++---------------+
+1 row in set (0.000 sec)
+
+MariaDB [dbkoperasi]> SELECT (SELECT COUNT(*) FROM produk WHERE stok < min_stok) AS jumlah_produk;
++---------------+
+| jumlah_produk |
++---------------+
+|             1 |
++---------------+
+1 row in set (0.000 sec)
+
+MariaDB [dbkoperasi]> SELECT (SELECT SUM(harga_beli * stok) FROM produk) AS total_asset;
++-------------+
+| total_asset |
++-------------+
+|   502624000 |
++-------------+
+1 row in set (0.001 sec)
+
+MariaDB [dbkoperasi]> SELECT
+    ->  id,
+    ->  nama,
+    ->  stok,
+    ->  CASE
+    ->  WHEN stok <= min_stok THEN 'Segera belanja' ELSE 'Stok aman'
+    ->  END AS status_stok
+    -> FROM produk;
++----+------------------+------+----------------+
+| id | nama             | stok | status_stok    |
++----+------------------+------+----------------+
+|  1 | Televisi 21 inch |    5 | Stok aman      |
+|  2 | Televisi 40 inch |    4 | Stok aman      |
+|  3 | Kulkas 2 pintu   |    6 | Stok aman      |
+|  4 | Meja Makan       |    4 | Stok aman      |
+|  5 | Teh Kotak        |    6 | Segera belanja |
+|  6 | PC Desktop HP    |    9 | Stok aman      |
+|  7 | Teh Botol        |   53 | Stok aman      |
+|  8 | Notebook Acer    |    7 | Stok aman      |
+|  9 | Notebook Lenovo  |    9 | Stok aman      |
+| 10 | Laptop HP        |   20 | Stok aman      |
++----+------------------+------+----------------+
+10 rows in set (0.001 sec)
+
+MariaDB [dbkoperasi]> SELECT
+    ->  id,
+    ->  nama,
+    ->  (YEAR(CURDATE()) - YEAR(tgl_lahir)) AS umur,
+    ->  CASE
+    ->  WHEN (YEAR(CURDATE()) - YEAR(tgl_lahir)) < 17 THEN 'Muda'
+    ->  WHEN (YEAR(CURDATE()) - YEAR(tgl_lahir)) BETWEEN 17 AND 55 THEN 'Dewasa'
+    ->  ELSE 'Tua'
+    ->  END AS kategori_umur
+    -> FROM pelanggan;
++----+---------------+------+---------------+
+| id | nama          | umur | kategori_umur |
++----+---------------+------+---------------+
+|  1 | Agung Sedayu  |   15 | Muda          |
+|  2 | Pandan Wangi  |   75 | Tua           |
+|  3 | Sekar Mirah   |   42 | Dewasa        |
+|  4 | Swandaru Geni |   44 | Dewasa        |
+|  5 | Pradabashu    |   40 | Dewasa        |
+|  6 | Gayatri Dwi   |   38 | Dewasa        |
+|  7 | Dewi Gyat     |   37 | Dewasa        |
+|  8 | Andre Haru    |   35 | Dewasa        |
+|  9 | Ahmad Hasan   |   33 | Dewasa        |
+| 10 | Cassanndra    |   35 | Dewasa        |
++----+---------------+------+---------------+
+10 rows in set (0.000 sec)
+
+MariaDB [dbkoperasi]> SELECT
+    ->     id,
+    ->     kode,
+    ->     nama,
+    ->     CASE
+    ->         WHEN kode = 'TV01' THEN 'DVD Player'
+    ->         WHEN kode = 'K001' THEN 'Rice Cooker'
+    ->         ELSE 'Tidak Ada'
+    ->     END AS bonus
+    -> FROM produk;
++----+------+------------------+-------------+
+| id | kode | nama             | bonus       |
++----+------+------------------+-------------+
+|  1 | TV01 | Televisi 21 inch | DVD Player  |
+|  2 | TV02 | Televisi 40 inch | Tidak Ada   |
+|  3 | K001 | Kulkas 2 pintu   | Rice Cooker |
+|  4 | M001 | Meja Makan       | Tidak Ada   |
+|  5 | TK01 | Teh Kotak        | Tidak Ada   |
+|  6 | PC01 | PC Desktop HP    | Tidak Ada   |
+|  7 | TB01 | Teh Botol        | Tidak Ada   |
+|  8 | AC01 | Notebook Acer    | Tidak Ada   |
+|  9 | LN01 | Notebook Lenovo  | Tidak Ada   |
+| 10 | L004 | Laptop HP        | Tidak Ada   |
++----+------+------------------+-------------+
+10 rows in set (0.000 sec)
+
+MariaDB [dbkoperasi]> SELECT tmp_lahir, COUNT(*) AS jumlah_pelanggan
+    -> FROM pelanggan
+    -> GROUP BY tmp_lahir;
++------------+------------------+
+| tmp_lahir  | jumlah_pelanggan |
++------------+------------------+
+| Belfast    |                1 |
+| Jakarta    |                2 |
+| Kediri     |                2 |
+| Pati       |                1 |
+| Solo       |                1 |
+| Surabaya   |                2 |
+| Yogyakarta |                1 |
++------------+------------------+
+7 rows in set (0.000 sec)
+
+MariaDB [dbkoperasi]> SELECT jenis_produk, COUNT(*) AS jumlah_produk
+    -> FROM produk
+    -> GROUP BY jenis_produk;
+ERROR 1054 (42S22): Unknown column 'jenis_produk' in 'field list'
+MariaDB [dbkoperasi]>
+MariaDB [dbkoperasi]> SELECT id, nama, (YEAR(CURDATE()) - YEAR(tanggal_lahir)) AS umur
+    -> FROM pelanggan
+    -> WHERE (YEAR(CURDATE()) - YEAR(tanggal_lahir)) < ( SELECT AVG(YEAR(CURDATE()) - YEAR(tanggal_lahir))
+    ->  FROM pelanggan
+    -> );
+ERROR 1054 (42S22): Unknown column 'tanggal_lahir' in 'field list'
+MariaDB [dbkoperasi]> SELECT id, nama, harga_jual
+    -> FROM produk
+    -> WHERE harga_jual > (SELECT AVG(harga_jual) FROM produk);
++----+------------------+------------+
+| id | nama             | harga_jual |
++----+------------------+------------+
+|  2 | Televisi 40 inch |    7440000 |
+|  6 | PC Desktop HP    |    9600000 |
+|  8 | Notebook Acer    |   10800000 |
+|  9 | Notebook Lenovo  |   12000000 |
+| 10 | Laptop HP        |   13000000 |
++----+------------------+------------+
+5 rows in set (0.001 sec)
+
+MariaDB [dbkoperasi]> SELECT pelanggan.id, pelanggan.nama, kartu.nama, kartu.iuran FROM pelanggan
+    ->  -> JOIN kartu ON pelanggan.kartu_id = kartu.id
+    ->  -> WHERE kartu.iuran >
+    -> 90000;
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near '-> JOIN kartu ON pelanggan.kartu_id = kartu.id
+ -> WHERE kartu.iuran >
+90000' at line 2
+MariaDB [dbkoperasi]> SELECT pelanggan.id, pelanggan.nama, kartu.nama, kartu.iuran FROM pelanggan
+    ->  -> JOIN kartu ON pelanggan.kartu_id = kartu.id
+    ->  -> WHERE kartu.iuran > 90000;
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near '-> JOIN kartu ON pelanggan.kartu_id = kartu.id
+ -> WHERE kartu.iuran > 90000' at line 2
+MariaDB [dbkoperasi]> SELECT COUNT(*) AS jumlah_produk, AVG(harga_jual) AS rata_rata_harga
+    -> FROM produk
+    -> WHERE harga_jual < (SELECT AVG(harga_jual) FROM produk);
++---------------+-----------------+
+| jumlah_produk | rata_rata_harga |
++---------------+-----------------+
+|             5 |         2065200 |
++---------------+-----------------+
+1 row in set (0.001 sec)
+
+MariaDB [dbkoperasi]> SELECT id, nama, harga_jual
+    -> FROM produk
+    -> WHERE harga_jual < (SELECT AVG(harga_jual) FROM produk);
++----+------------------+------------+
+| id | nama             | harga_jual |
++----+------------------+------------+
+|  1 | Televisi 21 inch |    5040000 |
+|  3 | Kulkas 2 pintu   |    4680000 |
+|  4 | Meja Makan       |     600000 |
+|  5 | Teh Kotak        |       3500 |
+|  7 | Teh Botol        |       2500 |
++----+------------------+------------+
+5 rows in set (0.001 sec)
+
+MariaDB [dbkoperasi]> SELECT p.id, p.nama, k.nama AS jenis_kartu, k.diskon
+    -> FROM pelanggan p
+    -> JOIN kartu k ON p.kartu_id = k.id
+    -> WHERE k.diskon > 0.03;
++----+--------------+---------------+--------+
+| id | nama         | jenis_kartu   | diskon |
++----+--------------+---------------+--------+
+|  1 | Agung Sedayu | Gold Utama    |   0.05 |
+|  3 | Sekar Mirah  | Gold Utama    |   0.05 |
+|  6 | Gayatri Dwi  | Gold Utama    |   0.05 |
+|  7 | Dewi Gyat    | Gold Utama    |   0.05 |
+| 10 | Cassanndra   | Gold Utama    |   0.05 |
+|  2 | Pandan Wangi | Platinum Jaya |    0.1 |
+|  5 | Pradabashu   | Platinum Jaya |    0.1 |
++----+--------------+---------------+--------+
+7 rows in set (0.002 sec)
+
+MariaDB [dbkoperasi]>
