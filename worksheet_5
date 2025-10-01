@@ -1,0 +1,330 @@
+worksheet 5
+
+Microsoft Windows [Version 10.0.19045.6332]
+(c) Microsoft Corporation. All rights reserved.
+
+C:\xampp\mysql\bin>mysql -u root -p
+Enter password:
+Welcome to the MariaDB monitor.  Commands end with ; or \g.
+Your MariaDB connection id is 22
+Server version: 10.4.32-MariaDB mariadb.org binary distribution
+
+Copyright (c) 2000, 2018, Oracle, MariaDB Corporation Ab and others.
+
+Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
+
+MariaDB [(none)]> use dbkoperasi
+Database changed
+MariaDB [dbkoperasi]> DESCRIBE produk;
++-----------------+-------------+------+-----+---------+----------------+
+| Field           | Type        | Null | Key | Default | Extra          |
++-----------------+-------------+------+-----+---------+----------------+
+| id              | int(11)     | NO   | PRI | NULL    | auto_increment |
+| kode            | varchar(10) | YES  | UNI | NULL    |                |
+| nama            | varchar(45) | YES  |     | NULL    |                |
+| harga_beli      | double      | YES  |     | NULL    |                |
+| harga_jual      | double      | YES  |     | NULL    |                |
+| stok            | int(11)     | YES  |     | NULL    |                |
+| min_stok        | int(11)     | YES  |     | NULL    |                |
+| jenis_produk_id | int(11)     | NO   | MUL | NULL    |                |
++-----------------+-------------+------+-----+---------+----------------+
+8 rows in set (0.150 sec)
+
+MariaDB [dbkoperasi]> DESCRIBE pembelian;
++-----------+-------------+------+-----+---------+----------------+
+| Field     | Type        | Null | Key | Default | Extra          |
++-----------+-------------+------+-----+---------+----------------+
+| id        | int(11)     | NO   | PRI | NULL    | auto_increment |
+| tanggal   | varchar(45) | YES  |     | NULL    |                |
+| nomor     | varchar(10) | YES  | UNI | NULL    |                |
+| produk_id | int(11)     | YES  | MUL | NULL    |                |
+| jumlah    | int(11)     | YES  |     | NULL    |                |
+| harga     | double      | YES  |     | NULL    |                |
+| vendor_id | int(11)     | YES  | MUL | NULL    |                |
++-----------+-------------+------+-----+---------+----------------+
+7 rows in set (0.040 sec)
+
+MariaDB [dbkoperasi]> DESCRIBE vendor;
++-------------+--------------+------+-----+---------+----------------+
+| Field       | Type         | Null | Key | Default | Extra          |
++-------------+--------------+------+-----+---------+----------------+
+| id          | int(11)      | NO   | PRI | NULL    | auto_increment |
+| nomor       | varchar(4)   | NO   | UNI | NULL    |                |
+| nama        | varchar(40)  | NO   |     | NULL    |                |
+| kota        | varchar(30)  | YES  |     | NULL    |                |
+| kontak      | varchar(40)  | YES  |     | NULL    |                |
+| nama_kontak | varchar(100) | YES  |     | NULL    |                |
++-------------+--------------+------+-----+---------+----------------+
+6 rows in set (0.151 sec)
+
+MariaDB [dbkoperasi]> CREATE VIEW pesanan_pelanggan_kartu AS
+    -> SELECT pesanan.id, pesanan.tanggal, pesanan.total,
+    ->        pelanggan.kode, pelanggan.nama,
+    ->        kartu.nama AS nama_kartu, kartu.diskon
+    -> FROM pesanan
+    -> INNER JOIN pelanggan ON pesanan.pelanggan_id = pelanggan.id
+    -> INNER JOIN kartu ON pelanggan.kartu_id = kartu.id;
+ERROR 1050 (42S01): Table 'pesanan_pelanggan_kartu' already exists
+MariaDB [dbkoperasi]>
+MariaDB [dbkoperasi]> SELECT * FROM pesanan_pelanggan_kartu;
++----+------------+---------+------+---------------+---------------+--------+
+| id | tanggal    | total   | kode | nama          | nama_kartu    | diskon |
++----+------------+---------+------+---------------+---------------+--------+
+|  1 | 2015-11-04 | 9720000 | C001 | Agung Sedayu  | Gold Utama    |   0.05 |
+|  2 | 2015-11-04 |   17500 | C003 | Sekar Mirah   | Gold Utama    |   0.05 |
+|  3 | 2015-11-04 |       0 | C006 | Gayatri Dwi   | Gold Utama    |   0.05 |
+|  4 | 2015-11-04 |       0 | C007 | Dewi Gyat     | Gold Utama    |   0.05 |
+|  5 | 2015-11-04 |       0 | C010 | Cassanndra    | Gold Utama    |   0.05 |
+|  6 | 2015-11-04 |       0 | C002 | Pandan Wangi  | Platinum Jaya |    0.1 |
+|  7 | 2015-11-04 |       0 | C005 | Pradabashu    | Platinum Jaya |    0.1 |
+|  8 | 2015-11-04 |       0 | C004 | Swandaru Geni | Non Member    |      0 |
+|  9 | 2015-11-04 |       0 | C008 | Andre Haru    | Non Member    |      0 |
+| 10 | 2015-11-04 |       0 | C009 | Ahmad Hasan   | Non Member    |      0 |
++----+------------+---------+------+---------------+---------------+--------+
+10 rows in set (0.006 sec)
+
+MariaDB [dbkoperasi]> CREATE VIEW pembelian_produk_vendor AS
+    -> SELECT pembelian.id, pembelian.tanggal, pembelian.nomor,
+    ->        pembelian_items.jumlah, pembelian_items.harga,
+    ->        vendor.nama, vendor.nama_kontak
+    -> FROM pembelian
+    -> INNER JOIN pembelian_items ON pembelian.id = pembelian_items.pembelian_id
+    -> INNER JOIN produk ON pembelian_items.produk_id = produk.id
+    -> INNER JOIN vendor ON produk.vendor_id = vendor.id;
+ERROR 1054 (42S22): Unknown column 'produk.vendor_id' in 'on clause'
+MariaDB [dbkoperasi]>
+MariaDB [dbkoperasi]> SELECT * FROM pembelian_produk_vendor;
+ERROR 1146 (42S02): Table 'dbkoperasi.pembelian_produk_vendor' doesn't exist
+MariaDB [dbkoperasi]> SELECT * FROM pembelian_produk_vendor;
+ERROR 1146 (42S02): Table 'dbkoperasi.pembelian_produk_vendor' doesn't exist
+MariaDB [dbkoperasi]> ALTER TABLE produk ADD COLUMN vendor_id INT;
+Query OK, 0 rows affected (0.303 sec)
+Records: 0  Duplicates: 0  Warnings: 0
+
+MariaDB [dbkoperasi]> UPDATE produk SET vendor_id = 1 WHERE id = 1;
+Query OK, 1 row affected (0.116 sec)
+Rows matched: 1  Changed: 1  Warnings: 0
+
+MariaDB [dbkoperasi]> UPDATE produk SET vendor_id = 2 WHERE id = 2;
+Query OK, 1 row affected (0.114 sec)
+Rows matched: 1  Changed: 1  Warnings: 0
+
+MariaDB [dbkoperasi]> -- dan seterusnya sesuai vendor yang benar
+MariaDB [dbkoperasi]> CREATE OR REPLACE VIEW pembelian_produk_vendor AS
+    -> SELECT p.id, p.tanggal, p.nomor,
+    ->        pi.jumlah, pi.harga,
+    ->        pr.nama AS nama_produk,
+    ->        v.nama AS vendor_nama,
+    ->        v.nama_kontak
+    -> FROM pembelian p
+    -> JOIN pembelian_items pi ON p.id = pi.pembelian_id
+    -> JOIN produk pr ON pi.produk_id = pr.id
+    -> JOIN vendor v ON pr.vendor_id = v.id;
+Query OK, 0 rows affected (0.115 sec)
+
+MariaDB [dbkoperasi]> DESCRIBE produk;
++-----------------+-------------+------+-----+---------+----------------+
+| Field           | Type        | Null | Key | Default | Extra          |
++-----------------+-------------+------+-----+---------+----------------+
+| id              | int(11)     | NO   | PRI | NULL    | auto_increment |
+| kode            | varchar(10) | YES  | UNI | NULL    |                |
+| nama            | varchar(45) | YES  |     | NULL    |                |
+| harga_beli      | double      | YES  |     | NULL    |                |
+| harga_jual      | double      | YES  |     | NULL    |                |
+| stok            | int(11)     | YES  |     | NULL    |                |
+| min_stok        | int(11)     | YES  |     | NULL    |                |
+| jenis_produk_id | int(11)     | NO   | MUL | NULL    |                |
+| vendor_id       | int(11)     | YES  |     | NULL    |                |
++-----------------+-------------+------+-----+---------+----------------+
+9 rows in set (0.060 sec)
+
+MariaDB [dbkoperasi]> DESCRIBE pembelian;
++-----------+-------------+------+-----+---------+----------------+
+| Field     | Type        | Null | Key | Default | Extra          |
++-----------+-------------+------+-----+---------+----------------+
+| id        | int(11)     | NO   | PRI | NULL    | auto_increment |
+| tanggal   | varchar(45) | YES  |     | NULL    |                |
+| nomor     | varchar(10) | YES  | UNI | NULL    |                |
+| produk_id | int(11)     | YES  | MUL | NULL    |                |
+| jumlah    | int(11)     | YES  |     | NULL    |                |
+| harga     | double      | YES  |     | NULL    |                |
+| vendor_id | int(11)     | YES  | MUL | NULL    |                |
++-----------+-------------+------+-----+---------+----------------+
+7 rows in set (0.028 sec)
+
+MariaDB [dbkoperasi]> DESCRIBE vendor;
++-------------+--------------+------+-----+---------+----------------+
+| Field       | Type         | Null | Key | Default | Extra          |
++-------------+--------------+------+-----+---------+----------------+
+| id          | int(11)      | NO   | PRI | NULL    | auto_increment |
+| nomor       | varchar(4)   | NO   | UNI | NULL    |                |
+| nama        | varchar(40)  | NO   |     | NULL    |                |
+| kota        | varchar(30)  | YES  |     | NULL    |                |
+| kontak      | varchar(40)  | YES  |     | NULL    |                |
+| nama_kontak | varchar(100) | YES  |     | NULL    |                |
++-------------+--------------+------+-----+---------+----------------+
+6 rows in set (0.009 sec)
+
+MariaDB [dbkoperasi]> SELECT * FROM pembelian_produk_vendor;
+Empty set (0.001 sec)
+
+MariaDB [dbkoperasi]> CREATE VIEW pembelian_produk_vendor AS
+    -> SELECT pembelian.id, pembelian.tanggal, pembelian.nomor,
+    ->        pembelian_items.jumlah, pembelian_items.harga,
+    ->        vendor.nama, vendor.nama_kontak
+    -> FROM pembelian
+    -> INNER JOIN pembelian_items ON pembelian.id = pembelian_items.pembelian_id
+    -> INNER JOIN produk ON pembelian_items.produk_id = produk.id
+    -> INNER JOIN vendor ON produk.vendor_id = vendor.id;
+ERROR 1050 (42S01): Table 'pembelian_produk_vendor' already exists
+MariaDB [dbkoperasi]>
+MariaDB [dbkoperasi]> SELECT * FROM pembelian_produk_vendor;
+Empty set (0.002 sec)
+
+MariaDB [dbkoperasi]> CREATE VIEW pesanan_pelanggan_produk_jenis AS
+    -> SELECT pesanan.id, pesanan.tanggal, pesanan.total,
+    ->        pelanggan.nama, pelanggan.kode,
+    ->        produk.nama AS nama_produk,
+    ->        jenis_produk.nama AS nama_jenis,
+    ->        pesanan_items.qty, pesanan_items.harga_jual
+    -> FROM pesanan
+    -> INNER JOIN pelanggan ON pesanan.pelanggan_id = pelanggan.id
+    -> INNER JOIN pesanan_items ON pesanan.id = pesanan_items.pesanan_id
+    -> INNER JOIN produk ON pesanan_items.produk_id = produk.id
+    -> INNER JOIN jenis_produk ON produk.jenis_produk_id = jenis_produk.id;
+ERROR 1054 (42S22): Unknown column 'pesanan_items.harga_jual' in 'field list'
+MariaDB [dbkoperasi]>
+MariaDB [dbkoperasi]> SELECT * FROM pesanan_pelanggan_produk_jenis;
+ERROR 1146 (42S02): Table 'dbkoperasi.pesanan_pelanggan_produk_jenis' doesn't exist
+MariaDB [dbkoperasi]> CREATE OR REPLACE VIEW pembelian_produk_vendor AS
+    -> SELECT p.id,
+    ->        p.tanggal,
+    ->        p.nomor,
+    ->        p.jumlah,
+    ->        p.harga,
+    ->        v.nama AS nama_vendor,
+    ->        v.nama_kontak
+    -> FROM pembelian p
+    -> JOIN vendor v ON p.vendor_id = v.id;
+Query OK, 0 rows affected (0.174 sec)
+
+MariaDB [dbkoperasi]> SELECT * FROM pembelian_produk_vendor;
++----+------------+-------+--------+---------+----------------------+-------------+
+| id | tanggal    | nomor | jumlah | harga   | nama_vendor          | nama_kontak |
++----+------------+-------+--------+---------+----------------------+-------------+
+|  1 | 2019-10-10 | P001  |      2 | 3500000 | PT Guna Samudra      | NULL        |
+|  2 | 2019-11-20 | P002  |      5 | 5500000 | PT Pondok C9         | NULL        |
+|  3 | 2019-12-12 | P003  |      5 | 5400000 | PT Guna Samudra      | NULL        |
+|  4 | 2020-01-20 | P004  |    200 |    1800 | CV Jaya Raya Semesta | NULL        |
+|  5 | 2020-01-20 | P005  |    100 |    2300 | CV Jaya Raya Semesta | NULL        |
++----+------------+-------+--------+---------+----------------------+-------------+
+5 rows in set (0.006 sec)
+
+MariaDB [dbkoperasi]> USE dbkoperasi;
+Database changed
+MariaDB [dbkoperasi]>
+MariaDB [dbkoperasi]> DROP VIEW IF EXISTS pembelian_produk_vendor;
+Query OK, 0 rows affected (0.002 sec)
+
+MariaDB [dbkoperasi]>
+MariaDB [dbkoperasi]> CREATE VIEW pembelian_produk_vendor AS
+    -> SELECT p.id            AS pembelian_id,
+    ->        p.tanggal,
+    ->        p.nomor,
+    ->        p.jumlah,
+    ->        p.harga,
+    ->        pr.nama         AS nama_produk,
+    ->        pr.kode         AS kode_produk,
+    ->        v.nama          AS nama_vendor,
+    ->        COALESCE(v.nama_kontak, v.kontak) AS nama_kontak
+    -> FROM pembelian p
+    -> LEFT JOIN produk  pr ON p.produk_id = pr.id
+    -> LEFT JOIN vendor  v  ON p.vendor_id  = v.id;
+Query OK, 0 rows affected (0.008 sec)
+
+MariaDB [dbkoperasi]> SELECT * FROM pembelian_produk_vendor;
++--------------+------------+-------+--------+---------+------------------+-------------+----------------------+-----------------+
+| pembelian_id | tanggal    | nomor | jumlah | harga   | nama_produk      | kode_produk | nama_vendor          | nama_kontak     |
++--------------+------------+-------+--------+---------+------------------+-------------+----------------------+-----------------+
+|            1 | 2019-10-10 | P001  |      2 | 3500000 | Televisi 21 inch | TV01        | PT Guna Samudra      | Ali Nurdin      |
+|            2 | 2019-11-20 | P002  |      5 | 5500000 | Televisi 40 inch | TV02        | PT Pondok C9         | Putri Ramadhani |
+|            3 | 2019-12-12 | P003  |      5 | 5400000 | Televisi 40 inch | TV02        | PT Guna Samudra      | Ali Nurdin      |
+|            4 | 2020-01-20 | P004  |    200 |    1800 | Teh Botol        | TB01        | CV Jaya Raya Semesta | Dwi Rahayu      |
+|            5 | 2020-01-20 | P005  |    100 |    2300 | Teh Kotak        | TK01        | CV Jaya Raya Semesta | Dwi Rahayu      |
++--------------+------------+-------+--------+---------+------------------+-------------+----------------------+-----------------+
+5 rows in set (0.003 sec)
+
+MariaDB [dbkoperasi]> USE dbkoperasi;
+Database changed
+MariaDB [dbkoperasi]>
+MariaDB [dbkoperasi]> DROP VIEW IF EXISTS pesanan_pelanggan_produk_jenis;
+Query OK, 0 rows affected, 1 warning (0.001 sec)
+
+MariaDB [dbkoperasi]>
+MariaDB [dbkoperasi]> CREATE VIEW pesanan_pelanggan_produk_jenis AS
+    -> SELECT
+    ->     pe.id,
+    ->     pe.tanggal,
+    ->     pe.total,
+    ->     pl.nama        AS nama_pelanggan,
+    ->     pr.kode        AS kode_produk,
+    ->     pr.nama        AS nama_produk,
+    ->     jp.nama        AS nama_jenis_produk,
+    ->     pi.qty,
+    ->     pi.harga_jual
+    -> FROM pesanan pe
+    -> JOIN pelanggan pl     ON pe.pelanggan_id = pl.id
+    -> JOIN pesanan_items pi ON pe.id = pi.pesanan_id
+    -> JOIN produk pr        ON pi.produk_id = pr.id
+    -> JOIN jenis_produk jp  ON pr.jenis_produk_id = jp.id;
+ERROR 1054 (42S22): Unknown column 'pi.harga_jual' in 'field list'
+MariaDB [dbkoperasi]> SELECT * FROM pesanan_pelanggan_produk_jenis;
+ERROR 1146 (42S02): Table 'dbkoperasi.pesanan_pelanggan_produk_jenis' doesn't exist
+MariaDB [dbkoperasi]> describe pesana_items
+    -> ;
+ERROR 1146 (42S02): Table 'dbkoperasi.pesana_items' doesn't exist
+MariaDB [dbkoperasi]> describe pesanan_items;
++------------+---------+------+-----+---------+----------------+
+| Field      | Type    | Null | Key | Default | Extra          |
++------------+---------+------+-----+---------+----------------+
+| id         | int(11) | NO   | PRI | NULL    | auto_increment |
+| produk_id  | int(11) | NO   | MUL | NULL    |                |
+| pesanan_id | int(11) | NO   | MUL | NULL    |                |
+| qty        | int(11) | YES  |     | NULL    |                |
+| harga      | double  | YES  |     | NULL    |                |
++------------+---------+------+-----+---------+----------------+
+5 rows in set (0.012 sec)
+
+MariaDB [dbkoperasi]> CREATE OR REPLACE VIEW pesanan_pelanggan_produk_jenis AS
+    -> SELECT
+    ->     pe.id,
+    ->     pe.tanggal,
+    ->     pe.total,
+    ->     pl.nama        AS nama_pelanggan,
+    ->     pr.kode        AS kode_produk,
+    ->     pr.nama        AS nama_produk,
+    ->     jp.nama        AS nama_jenis_produk,
+    ->     pi.qty,
+    ->     pi.harga       AS harga_jual
+    -> FROM pesanan pe
+    -> JOIN pelanggan pl     ON pe.pelanggan_id = pl.id
+    -> JOIN pesanan_items pi ON pe.id = pi.pesanan_id
+    -> JOIN produk pr        ON pi.produk_id = pr.id
+    -> JOIN jenis_produk jp  ON pr.jenis_produk_id = jp.id;
+Query OK, 0 rows affected (0.008 sec)
+
+MariaDB [dbkoperasi]> SELECT * FROM pesanan_pelanggan_produk_jenis;
++----+------------+---------+----------------+-------------+------------------+-------------------+------+------------+
+| id | tanggal    | total   | nama_pelanggan | kode_produk | nama_produk      | nama_jenis_produk | qty  | harga_jual |
++----+------------+---------+----------------+-------------+------------------+-------------------+------+------------+
+|  1 | 2015-11-04 | 9720000 | Agung Sedayu   | TV01        | Televisi 21 inch | elektronik        |    1 |    5040000 |
+|  1 | 2015-11-04 | 9720000 | Agung Sedayu   | K001        | Kulkas 2 pintu   | elektronik        |    1 |    4680000 |
+|  3 | 2015-11-04 |       0 | Gayatri Dwi    | TV01        | Televisi 21 inch | elektronik        |    1 |    5040000 |
+|  2 | 2015-11-04 |   17500 | Sekar Mirah    | TK01        | Teh Kotak        | minuman           |    5 |       3500 |
+|  3 | 2015-11-04 |       0 | Gayatri Dwi    | TK01        | Teh Kotak        | minuman           |   10 |       3500 |
+|  5 | 2015-11-04 |       0 | Cassanndra     | TK01        | Teh Kotak        | minuman           |   10 |       3500 |
+|  6 | 2015-11-04 |       0 | Pandan Wangi   | TK01        | Teh Kotak        | minuman           |   20 |       3500 |
++----+------------+---------+----------------+-------------+------------------+-------------------+------+------------+
+7 rows in set (0.006 sec)
+
+MariaDB [dbkoperasi]>
