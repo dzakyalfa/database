@@ -1,0 +1,259 @@
+Microsoft Windows [Version 10.0.19045.6332]
+(c) Microsoft Corporation. All rights reserved.
+
+C:\xampp\mysql\bin>mysql -u root -p
+Enter password:
+Welcome to the MariaDB monitor.  Commands end with ; or \g.
+Your MariaDB connection id is 53
+Server version: 10.4.32-MariaDB mariadb.org binary distribution
+
+Copyright (c) 2000, 2018, Oracle, MariaDB Corporation Ab and others.
+
+Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
+
+MariaDB [(none)]> use dbkoperasi;
+Database changed
+MariaDB [dbkoperasi]> SHOW PROCESSLIST;
++----+-------------+-----------------+------------+---------+------+--------------------------+------------------+----------+
+| Id | User        | Host            | db         | Command | Time | State                    | Info             | Progress |
++----+-------------+-----------------+------------+---------+------+--------------------------+------------------+----------+
+|  1 | system user |                 | NULL       | Daemon  | NULL | InnoDB purge coordinator | NULL             |    0.000 |
+|  2 | system user |                 | NULL       | Daemon  | NULL | InnoDB purge worker      | NULL             |    0.000 |
+|  3 | system user |                 | NULL       | Daemon  | NULL | InnoDB purge worker      | NULL             |    0.000 |
+|  4 | system user |                 | NULL       | Daemon  | NULL | InnoDB purge worker      | NULL             |    0.000 |
+|  5 | system user |                 | NULL       | Daemon  | NULL | InnoDB shutdown handler  | NULL             |    0.000 |
+| 22 | root        | localhost:50132 | dbkoperasi | Sleep   | 1720 |                          | NULL             |    0.000 |
+| 37 | root        | localhost:50451 | dbkoperasi | Sleep   | 1297 |                          | NULL             |    0.000 |
+| 53 | root        | localhost:50607 | dbkoperasi | Query   |    0 | Init                     | SHOW PROCESSLIST |    0.000 |
++----+-------------+-----------------+------------+---------+------+--------------------------+------------------+----------+
+8 rows in set (0.000 sec)
+
+MariaDB [dbkoperasi]> KILL <process_id>;
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near '<process_id>' at line 1
+MariaDB [dbkoperasi]> KILL 22,37,53;
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near '37,53' at line 1
+MariaDB [dbkoperasi]> KILL 22;
+Query OK, 0 rows affected (0.000 sec)
+
+MariaDB [dbkoperasi]> KILL 37;
+Query OK, 0 rows affected (0.000 sec)
+
+MariaDB [dbkoperasi]> KILL 53;
+ERROR 1927 (70100): Connection was killed
+MariaDB [dbkoperasi]> START TRANSACTION;
+ERROR 2013 (HY000): Lost connection to MySQL server during query
+MariaDB [dbkoperasi]> use dbkoperasi;
+No connection. Trying to reconnect...
+Connection id:    58
+Current database: *** NONE ***
+
+Database changed
+MariaDB [dbkoperasi]> show tables;
++--------------------------------+
+| Tables_in_dbkoperasi           |
++--------------------------------+
+| jenis_produk                   |
+| kartu                          |
+| kartu_iuran                    |
+| pelanggan                      |
+| pembayaran                     |
+| pembelian                      |
+| pembelian_items                |
+| pembelian_produk_vendor        |
+| pesanan                        |
+| pesanan_items                  |
+| pesanan_pelanggan_kartu        |
+| pesanan_pelanggan_produk_jenis |
+| produk                         |
+| vendor                         |
++--------------------------------+
+14 rows in set (0.001 sec)
+
+MariaDB [dbkoperasi]> show pembayaran;
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 'pembayaran' at line 1
+MariaDB [dbkoperasi]> START TRANSACTION;
+Query OK, 0 rows affected (0.000 sec)
+
+MariaDB [dbkoperasi]> INSERT INTO produk (kode, nama, harga_jual, stok, Vendor_id, jenis_produk_id) VALUES
+    -> ('PRD010', 'Produk A', 15000, 20, 1, 1),
+    -> ('PRD011', 'Produk B', 20000, 25, 1, 2),
+    -> ('PRD012', 'Produk C', 30000, 30, 2, 1);
+Query OK, 3 rows affected (0.001 sec)
+Records: 3  Duplicates: 0  Warnings: 0
+
+MariaDB [dbkoperasi]> SELECT * FROM produk;
++----+--------+------------------+------------+------------+------+----------+-----------------+-----------+
+| id | kode   | nama             | harga_beli | harga_jual | stok | min_stok | jenis_produk_id | vendor_id |
++----+--------+------------------+------------+------------+------+----------+-----------------+-----------+
+|  1 | TV01   | Televisi 21 inch |    3500000 |    5040000 |    5 |        2 |               1 |         1 |
+|  2 | TV02   | Televisi 40 inch |    5500000 |    7440000 |    4 |        2 |               1 |         2 |
+|  3 | K001   | Kulkas 2 pintu   |    3500000 |    4680000 |    6 |        2 |               1 |      NULL |
+|  4 | M001   | Meja Makan       |     500000 |     600000 |    4 |        3 |               2 |      NULL |
+|  5 | TK01   | Teh Kotak        |       3000 |       3500 |    6 |       10 |               4 |      NULL |
+|  6 | PC01   | PC Desktop HP    |    7000000 |    9600000 |    9 |        2 |               5 |      NULL |
+|  7 | TB01   | Teh Botol        |       2000 |       2500 |   53 |       10 |               4 |      NULL |
+|  8 | AC01   | Notebook Acer    |    8000000 |   10800000 |    7 |        2 |               5 |      NULL |
+|  9 | LN01   | Notebook Lenovo  |    9000000 |   12000000 |    9 |        2 |               5 |      NULL |
+| 10 | L004   | Laptop HP        |   12000000 |   13000000 |   20 |        5 |               5 |      NULL |
+| 23 | PRD010 | Produk A         |       NULL |      15000 |   20 |     NULL |               1 |         1 |
+| 24 | PRD011 | Produk B         |       NULL |      20000 |   25 |     NULL |               2 |         1 |
+| 25 | PRD012 | Produk C         |       NULL |      30000 |   30 |     NULL |               1 |         2 |
++----+--------+------------------+------------+------------+------+----------+-----------------+-----------+
+13 rows in set (0.000 sec)
+
+MariaDB [dbkoperasi]> UPDATE produk
+    -> SET stok = 40
+    -> WHERE kode = 'PRD001';
+Query OK, 0 rows affected (0.000 sec)
+Rows matched: 0  Changed: 0  Warnings: 0
+
+MariaDB [dbkoperasi]> SELECT * FROM produk;
++----+--------+------------------+------------+------------+------+----------+-----------------+-----------+
+| id | kode   | nama             | harga_beli | harga_jual | stok | min_stok | jenis_produk_id | vendor_id |
++----+--------+------------------+------------+------------+------+----------+-----------------+-----------+
+|  1 | TV01   | Televisi 21 inch |    3500000 |    5040000 |    5 |        2 |               1 |         1 |
+|  2 | TV02   | Televisi 40 inch |    5500000 |    7440000 |    4 |        2 |               1 |         2 |
+|  3 | K001   | Kulkas 2 pintu   |    3500000 |    4680000 |    6 |        2 |               1 |      NULL |
+|  4 | M001   | Meja Makan       |     500000 |     600000 |    4 |        3 |               2 |      NULL |
+|  5 | TK01   | Teh Kotak        |       3000 |       3500 |    6 |       10 |               4 |      NULL |
+|  6 | PC01   | PC Desktop HP    |    7000000 |    9600000 |    9 |        2 |               5 |      NULL |
+|  7 | TB01   | Teh Botol        |       2000 |       2500 |   53 |       10 |               4 |      NULL |
+|  8 | AC01   | Notebook Acer    |    8000000 |   10800000 |    7 |        2 |               5 |      NULL |
+|  9 | LN01   | Notebook Lenovo  |    9000000 |   12000000 |    9 |        2 |               5 |      NULL |
+| 10 | L004   | Laptop HP        |   12000000 |   13000000 |   20 |        5 |               5 |      NULL |
+| 23 | PRD010 | Produk A         |       NULL |      15000 |   20 |     NULL |               1 |         1 |
+| 24 | PRD011 | Produk B         |       NULL |      20000 |   25 |     NULL |               2 |         1 |
+| 25 | PRD012 | Produk C         |       NULL |      30000 |   30 |     NULL |               1 |         2 |
++----+--------+------------------+------------+------------+------+----------+-----------------+-----------+
+13 rows in set (0.001 sec)
+
+MariaDB [dbkoperasi]> SELECT * FROM produk
+    -> WHERE stok = 40;
+Empty set (0.000 sec)
+
+MariaDB [dbkoperasi]> UPDATE produk
+    -> SET stok = 40
+    -> WHERE kode = 'PRD012';
+Query OK, 1 row affected (0.001 sec)
+Rows matched: 1  Changed: 1  Warnings: 0
+
+MariaDB [dbkoperasi]> SELECT * FROM produk;
++----+--------+------------------+------------+------------+------+----------+-----------------+-----------+
+| id | kode   | nama             | harga_beli | harga_jual | stok | min_stok | jenis_produk_id | vendor_id |
++----+--------+------------------+------------+------------+------+----------+-----------------+-----------+
+|  1 | TV01   | Televisi 21 inch |    3500000 |    5040000 |    5 |        2 |               1 |         1 |
+|  2 | TV02   | Televisi 40 inch |    5500000 |    7440000 |    4 |        2 |               1 |         2 |
+|  3 | K001   | Kulkas 2 pintu   |    3500000 |    4680000 |    6 |        2 |               1 |      NULL |
+|  4 | M001   | Meja Makan       |     500000 |     600000 |    4 |        3 |               2 |      NULL |
+|  5 | TK01   | Teh Kotak        |       3000 |       3500 |    6 |       10 |               4 |      NULL |
+|  6 | PC01   | PC Desktop HP    |    7000000 |    9600000 |    9 |        2 |               5 |      NULL |
+|  7 | TB01   | Teh Botol        |       2000 |       2500 |   53 |       10 |               4 |      NULL |
+|  8 | AC01   | Notebook Acer    |    8000000 |   10800000 |    7 |        2 |               5 |      NULL |
+|  9 | LN01   | Notebook Lenovo  |    9000000 |   12000000 |    9 |        2 |               5 |      NULL |
+| 10 | L004   | Laptop HP        |   12000000 |   13000000 |   20 |        5 |               5 |      NULL |
+| 23 | PRD010 | Produk A         |       NULL |      15000 |   20 |     NULL |               1 |         1 |
+| 24 | PRD011 | Produk B         |       NULL |      20000 |   25 |     NULL |               2 |         1 |
+| 25 | PRD012 | Produk C         |       NULL |      30000 |   40 |     NULL |               1 |         2 |
++----+--------+------------------+------------+------------+------+----------+-----------------+-----------+
+13 rows in set (0.001 sec)
+
+MariaDB [dbkoperasi]> SAVEPOINT sebelum_hapus_pembayaran;
+Query OK, 0 rows affected (0.000 sec)
+
+MariaDB [dbkoperasi]> DELETE FROM pembayaran
+    -> WHERE id = 5;
+Query OK, 0 rows affected (0.000 sec)
+
+MariaDB [dbkoperasi]> SELECT * FROM produk;
++----+--------+------------------+------------+------------+------+----------+-----------------+-----------+
+| id | kode   | nama             | harga_beli | harga_jual | stok | min_stok | jenis_produk_id | vendor_id |
++----+--------+------------------+------------+------------+------+----------+-----------------+-----------+
+|  1 | TV01   | Televisi 21 inch |    3500000 |    5040000 |    5 |        2 |               1 |         1 |
+|  2 | TV02   | Televisi 40 inch |    5500000 |    7440000 |    4 |        2 |               1 |         2 |
+|  3 | K001   | Kulkas 2 pintu   |    3500000 |    4680000 |    6 |        2 |               1 |      NULL |
+|  4 | M001   | Meja Makan       |     500000 |     600000 |    4 |        3 |               2 |      NULL |
+|  5 | TK01   | Teh Kotak        |       3000 |       3500 |    6 |       10 |               4 |      NULL |
+|  6 | PC01   | PC Desktop HP    |    7000000 |    9600000 |    9 |        2 |               5 |      NULL |
+|  7 | TB01   | Teh Botol        |       2000 |       2500 |   53 |       10 |               4 |      NULL |
+|  8 | AC01   | Notebook Acer    |    8000000 |   10800000 |    7 |        2 |               5 |      NULL |
+|  9 | LN01   | Notebook Lenovo  |    9000000 |   12000000 |    9 |        2 |               5 |      NULL |
+| 10 | L004   | Laptop HP        |   12000000 |   13000000 |   20 |        5 |               5 |      NULL |
+| 23 | PRD010 | Produk A         |       NULL |      15000 |   20 |     NULL |               1 |         1 |
+| 24 | PRD011 | Produk B         |       NULL |      20000 |   25 |     NULL |               2 |         1 |
+| 25 | PRD012 | Produk C         |       NULL |      30000 |   40 |     NULL |               1 |         2 |
++----+--------+------------------+------------+------------+------+----------+-----------------+-----------+
+13 rows in set (0.000 sec)
+
+MariaDB [dbkoperasi]> ROLLBACK TO SAVEPOINT sebelum_hapus_pembayaran;
+Query OK, 0 rows affected (0.000 sec)
+
+MariaDB [dbkoperasi]> SELECT * FROM produk;
++----+--------+------------------+------------+------------+------+----------+-----------------+-----------+
+| id | kode   | nama             | harga_beli | harga_jual | stok | min_stok | jenis_produk_id | vendor_id |
++----+--------+------------------+------------+------------+------+----------+-----------------+-----------+
+|  1 | TV01   | Televisi 21 inch |    3500000 |    5040000 |    5 |        2 |               1 |         1 |
+|  2 | TV02   | Televisi 40 inch |    5500000 |    7440000 |    4 |        2 |               1 |         2 |
+|  3 | K001   | Kulkas 2 pintu   |    3500000 |    4680000 |    6 |        2 |               1 |      NULL |
+|  4 | M001   | Meja Makan       |     500000 |     600000 |    4 |        3 |               2 |      NULL |
+|  5 | TK01   | Teh Kotak        |       3000 |       3500 |    6 |       10 |               4 |      NULL |
+|  6 | PC01   | PC Desktop HP    |    7000000 |    9600000 |    9 |        2 |               5 |      NULL |
+|  7 | TB01   | Teh Botol        |       2000 |       2500 |   53 |       10 |               4 |      NULL |
+|  8 | AC01   | Notebook Acer    |    8000000 |   10800000 |    7 |        2 |               5 |      NULL |
+|  9 | LN01   | Notebook Lenovo  |    9000000 |   12000000 |    9 |        2 |               5 |      NULL |
+| 10 | L004   | Laptop HP        |   12000000 |   13000000 |   20 |        5 |               5 |      NULL |
+| 23 | PRD010 | Produk A         |       NULL |      15000 |   20 |     NULL |               1 |         1 |
+| 24 | PRD011 | Produk B         |       NULL |      20000 |   25 |     NULL |               2 |         1 |
+| 25 | PRD012 | Produk C         |       NULL |      30000 |   40 |     NULL |               1 |         2 |
++----+--------+------------------+------------+------------+------+----------+-----------------+-----------+
+13 rows in set (0.001 sec)
+
+MariaDB [dbkoperasi]> UPDATE kartu_iuran
+    -> SET jumlah_iuran = 50000
+    -> WHERE id = 2;
+Query OK, 0 rows affected (0.001 sec)
+Rows matched: 1  Changed: 0  Warnings: 0
+
+MariaDB [dbkoperasi]> SELECT * FROM produk;
++----+--------+------------------+------------+------------+------+----------+-----------------+-----------+
+| id | kode   | nama             | harga_beli | harga_jual | stok | min_stok | jenis_produk_id | vendor_id |
++----+--------+------------------+------------+------------+------+----------+-----------------+-----------+
+|  1 | TV01   | Televisi 21 inch |    3500000 |    5040000 |    5 |        2 |               1 |         1 |
+|  2 | TV02   | Televisi 40 inch |    5500000 |    7440000 |    4 |        2 |               1 |         2 |
+|  3 | K001   | Kulkas 2 pintu   |    3500000 |    4680000 |    6 |        2 |               1 |      NULL |
+|  4 | M001   | Meja Makan       |     500000 |     600000 |    4 |        3 |               2 |      NULL |
+|  5 | TK01   | Teh Kotak        |       3000 |       3500 |    6 |       10 |               4 |      NULL |
+|  6 | PC01   | PC Desktop HP    |    7000000 |    9600000 |    9 |        2 |               5 |      NULL |
+|  7 | TB01   | Teh Botol        |       2000 |       2500 |   53 |       10 |               4 |      NULL |
+|  8 | AC01   | Notebook Acer    |    8000000 |   10800000 |    7 |        2 |               5 |      NULL |
+|  9 | LN01   | Notebook Lenovo  |    9000000 |   12000000 |    9 |        2 |               5 |      NULL |
+| 10 | L004   | Laptop HP        |   12000000 |   13000000 |   20 |        5 |               5 |      NULL |
+| 23 | PRD010 | Produk A         |       NULL |      15000 |   20 |     NULL |               1 |         1 |
+| 24 | PRD011 | Produk B         |       NULL |      20000 |   25 |     NULL |               2 |         1 |
+| 25 | PRD012 | Produk C         |       NULL |      30000 |   40 |     NULL |               1 |         2 |
++----+--------+------------------+------------+------------+------+----------+-----------------+-----------+
+13 rows in set (0.001 sec)
+
+MariaDB [dbkoperasi]> COMMIT;
+Query OK, 0 rows affected (0.003 sec)
+
+MariaDB [dbkoperasi]> SELECT * FROM produk;
++----+--------+------------------+------------+------------+------+----------+-----------------+-----------+
+| id | kode   | nama             | harga_beli | harga_jual | stok | min_stok | jenis_produk_id | vendor_id |
++----+--------+------------------+------------+------------+------+----------+-----------------+-----------+
+|  1 | TV01   | Televisi 21 inch |    3500000 |    5040000 |    5 |        2 |               1 |         1 |
+|  2 | TV02   | Televisi 40 inch |    5500000 |    7440000 |    4 |        2 |               1 |         2 |
+|  3 | K001   | Kulkas 2 pintu   |    3500000 |    4680000 |    6 |        2 |               1 |      NULL |
+|  4 | M001   | Meja Makan       |     500000 |     600000 |    4 |        3 |               2 |      NULL |
+|  5 | TK01   | Teh Kotak        |       3000 |       3500 |    6 |       10 |               4 |      NULL |
+|  6 | PC01   | PC Desktop HP    |    7000000 |    9600000 |    9 |        2 |               5 |      NULL |
+|  7 | TB01   | Teh Botol        |       2000 |       2500 |   53 |       10 |               4 |      NULL |
+|  8 | AC01   | Notebook Acer    |    8000000 |   10800000 |    7 |        2 |               5 |      NULL |
+|  9 | LN01   | Notebook Lenovo  |    9000000 |   12000000 |    9 |        2 |               5 |      NULL |
+| 10 | L004   | Laptop HP        |   12000000 |   13000000 |   20 |        5 |               5 |      NULL |
+| 23 | PRD010 | Produk A         |       NULL |      15000 |   20 |     NULL |               1 |         1 |
+| 24 | PRD011 | Produk B         |       NULL |      20000 |   25 |     NULL |               2 |         1 |
+| 25 | PRD012 | Produk C         |       NULL |      30000 |   40 |     NULL |               1 |         2 |
++----+--------+------------------+------------+------------+------+----------+-----------------+-----------+
+13 rows in set (0.001 sec)
+
+MariaDB [dbkoperasi]>
