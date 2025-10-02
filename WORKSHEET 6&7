@@ -1,0 +1,317 @@
+Microsoft Windows [Version 10.0.19045.6332]
+(c) Microsoft Corporation. All rights reserved.
+
+C:\xampp\mysql\bin>mysql -u root -p
+Enter password:
+ERROR 2002 (HY000): Can't connect to MySQL server on 'localhost' (10061)
+
+C:\xampp\mysql\bin>
+C:\xampp\mysql\bin>mysql -u root -p
+Enter password:
+Welcome to the MariaDB monitor.  Commands end with ; or \g.
+Your MariaDB connection id is 8
+Server version: 10.4.32-MariaDB mariadb.org binary distribution
+
+Copyright (c) 2000, 2018, Oracle, MariaDB Corporation Ab and others.
+
+Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
+
+MariaDB [(none)]> SELECT * FROM pesanan;
+ERROR 1046 (3D000): No database selected
+MariaDB [(none)]> use dbkoperasi;
+Database changed
+MariaDB [dbkoperasi]> SELECT * FROM pesanan;
++----+------------+---------+--------------+
+| id | tanggal    | total   | pelanggan_id |
++----+------------+---------+--------------+
+|  1 | 2015-11-04 | 9720000 |            1 |
+|  2 | 2015-11-04 |   17500 |            3 |
+|  3 | 2015-11-04 |       0 |            6 |
+|  4 | 2015-11-04 |       0 |            7 |
+|  5 | 2015-11-04 |       0 |           10 |
+|  6 | 2015-11-04 |       0 |            2 |
+|  7 | 2015-11-04 |       0 |            5 |
+|  8 | 2015-11-04 |       0 |            4 |
+|  9 | 2015-11-04 |       0 |            8 |
+| 10 | 2015-11-04 |       0 |            9 |
++----+------------+---------+--------------+
+10 rows in set (0.039 sec)
+
+MariaDB [dbkoperasi]> ALTER TABLE pembayaran ADD status_pembayaran varchar(25);
+Query OK, 0 rows affected (0.007 sec)
+Records: 0  Duplicates: 0  Warnings: 0
+
+MariaDB [dbkoperasi]> DELIMETER$$
+    -> CREATE TRIGGER cek_pembayaran BEFORE INSERT ON pembayaran
+    -> FOR EACH ROW
+    -> BEGIN
+    -> DECLARE total_bayar DECIMAL (10, 2);
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 'DELIMETER$$
+CREATE TRIGGER cek_pembayaran BEFORE INSERT ON pembayaran
+FOR EA...' at line 1
+MariaDB [dbkoperasi]> DELIMITER $$
+MariaDB [dbkoperasi]> CREATE TRIGGER cek_pembayaran BEFORE INSERT ON pembayaran
+    -> FOR EACH ROW
+    -> BEGIN
+    -> DECLARE total_bayar DECIMAL (10, 2);
+    -> DECLARE total_pesanan DECIMAL (10, 2);
+    -> SELECT SUM(jumlah) INTO total_bayar FROM pembayaran WHERE pesanan_id = NEW.pesanan_id;
+    -> SELECT total INTO total_pesanan FROM pesanan WHERE id = NEW.pesanan_id;
+    -> IF total_bayar + NEW.jumlah >= total_pesanan THEN
+    -> SET NEW.status_pembayaran = 'Lunas';
+    -> END IF;
+    -> END $$
+Query OK, 0 rows affected (0.017 sec)
+
+MariaDB [dbkoperasi]> DELIMITER ;
+MariaDB [dbkoperasi]> INSERT INTO pembayaran (no_kuitansi, tanggal, jumlah, ke, pesanan_id, status_pembayaran)
+    -> VALUES ('KWI001', '2023-03-03', 200000, 1, 1);
+ERROR 1136 (21S01): Column count doesn't match value count at row 1
+MariaDB [dbkoperasi]> DESC pembayaran;
++-------------------+-------------+------+-----+---------+----------------+
+| Field             | Type        | Null | Key | Default | Extra          |
++-------------------+-------------+------+-----+---------+----------------+
+| id                | int(11)     | NO   | PRI | NULL    | auto_increment |
+| nokuitansi        | varchar(10) | YES  | UNI | NULL    |                |
+| tanggal           | date        | YES  |     | NULL    |                |
+| jumlah            | double      | YES  |     | NULL    |                |
+| ke                | int(11)     | YES  |     | NULL    |                |
+| pesanan_id        | int(11)     | NO   | MUL | NULL    |                |
+| status_pembayaran | varchar(25) | YES  |     | NULL    |                |
++-------------------+-------------+------+-----+---------+----------------+
+7 rows in set (0.015 sec)
+
+MariaDB [dbkoperasi]> INSERT INTO pembayaran (nokuitansi, tanggal, jumlah, ke, pesanan_id, status_pembayaran)
+    -> VALUES ('KWI001', '2023-03-03', 200000, 1, 1, 'Belum Lunas');
+Query OK, 1 row affected (0.006 sec)
+
+MariaDB [dbkoperasi]> SELECT * FROM pembayaran;
++----+------------+------------+--------+------+------------+-------------------+
+| id | nokuitansi | tanggal    | jumlah | ke   | pesanan_id | status_pembayaran |
++----+------------+------------+--------+------+------------+-------------------+
+|  1 | KWI001     | 2023-03-03 | 200000 |    1 |          1 | Belum Lunas       |
++----+------------+------------+--------+------+------------+-------------------+
+1 row in set (0.001 sec)
+
+MariaDB [dbkoperasi]> SELECT * FROM pesanan;
++----+------------+---------+--------------+
+| id | tanggal    | total   | pelanggan_id |
++----+------------+---------+--------------+
+|  1 | 2015-11-04 | 9720000 |            1 |
+|  2 | 2015-11-04 |   17500 |            3 |
+|  3 | 2015-11-04 |       0 |            6 |
+|  4 | 2015-11-04 |       0 |            7 |
+|  5 | 2015-11-04 |       0 |           10 |
+|  6 | 2015-11-04 |       0 |            2 |
+|  7 | 2015-11-04 |       0 |            5 |
+|  8 | 2015-11-04 |       0 |            4 |
+|  9 | 2015-11-04 |       0 |            8 |
+| 10 | 2015-11-04 |       0 |            9 |
++----+------------+---------+--------------+
+10 rows in set (0.000 sec)
+
+MariaDB [dbkoperasi]> DELIMITER $$
+MariaDB [dbkoperasi]>
+MariaDB [dbkoperasi]> CREATE PROCEDURE kurangi_stok (
+    ->     IN p_produk_id INT,
+    ->     IN p_jumlah INT
+    -> )
+    -> BEGIN
+    ->     UPDATE produk
+    ->     SET stok = stok - p_jumlah
+    ->     WHERE id = p_produk_id;
+    -> END $$
+Query OK, 0 rows affected (0.059 sec)
+
+MariaDB [dbkoperasi]>
+MariaDB [dbkoperasi]> DELIMITER ;
+MariaDB [dbkoperasi]> DELIMITER $$
+MariaDB [dbkoperasi]>
+MariaDB [dbkoperasi]> CREATE TRIGGER trig_kurangi_stok
+    -> AFTER INSERT ON pesanan_items
+    -> FOR EACH ROW
+    -> BEGIN
+    ->     CALL kurangi_stok(NEW.produk_id, NEW.jumlah);
+    -> END $$
+ERROR 1054 (42S22): Unknown column 'jumlah' in 'NEW'
+MariaDB [dbkoperasi]>
+MariaDB [dbkoperasi]> DELIMITER ;
+MariaDB [dbkoperasi]> DESC pesanan_items;
++------------+---------+------+-----+---------+----------------+
+| Field      | Type    | Null | Key | Default | Extra          |
++------------+---------+------+-----+---------+----------------+
+| id         | int(11) | NO   | PRI | NULL    | auto_increment |
+| produk_id  | int(11) | NO   | MUL | NULL    |                |
+| pesanan_id | int(11) | NO   | MUL | NULL    |                |
+| qty        | int(11) | YES  |     | NULL    |                |
+| harga      | double  | YES  |     | NULL    |                |
++------------+---------+------+-----+---------+----------------+
+5 rows in set (0.021 sec)
+
+MariaDB [dbkoperasi]> DELIMITER $$
+MariaDB [dbkoperasi]>
+MariaDB [dbkoperasi]> CREATE TRIGGER trig_kurangi_stok
+    -> AFTER INSERT ON pesanan_items
+    -> FOR EACH ROW
+    -> BEGIN
+    ->     CALL kurangi_stok(NEW.produk_id, NEW.jumlah);
+    -> END $$
+ERROR 1054 (42S22): Unknown column 'jumlah' in 'NEW'
+MariaDB [dbkoperasi]>
+MariaDB [dbkoperasi]> DELIMITER ;
+MariaDB [dbkoperasi]> DELIMITER $$
+MariaDB [dbkoperasi]> CREATE TRIGGER trig_kurangi_stok
+    -> AFTER INSERT ON pesanan_items
+    -> FOR EACH ROW
+    -> BEGIN
+    ->     CALL kurangi_stok(NEW.produk_id, NEW.qty);
+    -> END $$
+Query OK, 0 rows affected (0.009 sec)
+
+MariaDB [dbkoperasi]> SHOW TRIGGERS;
+    ->
+    -> SELECT TRIGGER_NAME, EVENT_MANIPULATION, EVENT_OBJECT_TABLE, ACTION_TIMING
+    -> FROM information_schema.TRIGGERS
+    -> WHERE TRIGGER_SCHEMA = 'dbkoperasi';
+    ->
+    -> END $$
++-------------------+--------+---------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+--------+------------------------+-----------------------------------------------------+----------------+----------------------+----------------------+--------------------+
+| Trigger           | Event  | Table         | Statement                                                                                                                                                                                                                                                                                                                                           | Timing | Created                | sql_mode                                            | Definer        | character_set_client | collation_connection | Database Collation |
++-------------------+--------+---------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+--------+------------------------+-----------------------------------------------------+----------------+----------------------+----------------------+--------------------+
+| cek_pembayaran    | INSERT | pembayaran    | BEGIN
+DECLARE total_bayar DECIMAL (10, 2);
+DECLARE total_pesanan DECIMAL (10, 2);
+SELECT SUM(jumlah) INTO total_bayar FROM pembayaran WHERE pesanan_id = NEW.pesanan_id;
+SELECT total INTO total_pesanan FROM pesanan WHERE id = NEW.pesanan_id;
+IF total_bayar + NEW.jumlah >= total_pesanan THEN
+SET NEW.status_pembayaran = 'Lunas';
+END IF;
+END | BEFORE | 2025-10-02 21:03:55.98 | NO_ZERO_IN_DATE,NO_ZERO_DATE,NO_ENGINE_SUBSTITUTION | root@localhost | cp850                | cp850_general_ci     | utf8mb4_general_ci |
+| trig_kurangi_stok | INSERT | pesanan_items | BEGIN
+    CALL kurangi_stok(NEW.produk_id, NEW.qty);
+END                                                                                                                                                                                                                                                                                            | AFTER  | 2025-10-02 21:12:19.80 | NO_ZERO_IN_DATE,NO_ZERO_DATE,NO_ENGINE_SUBSTITUTION | root@localhost | cp850                | cp850_general_ci     | utf8mb4_general_ci |
++-------------------+--------+---------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+--------+------------------------+-----------------------------------------------------+----------------+----------------------+----------------------+--------------------+
+2 rows in set (0.017 sec)
+
++-------------------+--------------------+--------------------+---------------+
+| TRIGGER_NAME      | EVENT_MANIPULATION | EVENT_OBJECT_TABLE | ACTION_TIMING |
++-------------------+--------------------+--------------------+---------------+
+| cek_pembayaran    | INSERT             | pembayaran         | BEFORE        |
+| trig_kurangi_stok | INSERT             | pesanan_items      | AFTER         |
++-------------------+--------------------+--------------------+---------------+
+2 rows in set (0.077 sec)
+
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 'END' at line 1
+MariaDB [dbkoperasi]> CREATE PROCEDURE ...
+    -> DELIMITER $$
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near '...
+DELIMITER' at line 1
+MariaDB [dbkoperasi]> MariaDB [dbpos1]> CREATE PROCEDURE pro_naik(
+    ->     -> IN jenis_produk INT,
+    ->     -> IN persentasi_kenaikan INT )
+    ->     -> BEGIN
+    ->     -> UPDATE produk SET harga_jual = harga_jual + (harga_jual * persentasi_kenaikan / 100)
+    ->     -> WHERE jenis_produk_id = jenis_produk;
+    ->     -> END $$
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 'MariaDB [dbpos1]> CREATE PROCEDURE pro_naik(
+    -> IN jenis_produk INT,
+    ...' at line 1
+MariaDB [dbkoperasi]> DELIMITER ;
+MariaDB [dbkoperasi]> MariaDB [dbpos1]> CALL pro_naik(1,4); 4 disini adalah 4%
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 'MariaDB [dbpos1]> CALL pro_naik(1,4)' at line 1
+    -> CREATE PROCEDURE pro_naikan_harga
+    -> end &&
+    -> ;
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near '4 disini adalah 4%
+CREATE PROCEDURE pro_naikan_harga
+end &&' at line 1
+MariaDB [dbkoperasi]> DELIMITER $$
+MariaDB [dbkoperasi]>
+MariaDB [dbkoperasi]> CREATE PROCEDURE pro_naikan_harga (
+    ->     IN jenis_produk INT,
+    ->     IN persentasi_kenaikan INT
+    -> )
+    -> BEGIN
+    ->     UPDATE produk
+    ->     SET harga_jual = harga_jual + (harga_jual * persentasi_kenaikan / 100)
+    ->     WHERE jenis_produk_id = jenis_produk;
+    -> END $$
+Query OK, 0 rows affected (0.009 sec)
+
+MariaDB [dbkoperasi]>
+MariaDB [dbkoperasi]> DELIMITER ;
+MariaDB [dbkoperasi]> CALL pro_naikan_harga(1, 4);
+Query OK, 5 rows affected (0.009 sec)
+
+MariaDB [dbkoperasi]> DELIMITER $$
+MariaDB [dbkoperasi]>
+MariaDB [dbkoperasi]> CREATE FUNCTION kategori_harga(harga DOUBLE)
+    -> RETURNS VARCHAR(20)
+    -> DETERMINISTIC
+    -> BEGIN
+    ->     DECLARE kategori VARCHAR(20);
+    ->
+    ->     IF harga >= 0 AND harga <= 500000 THEN
+    ->         SET kategori = 'Murah';
+    ->     ELSEIF harga > 500000 AND harga <= 3000000 THEN
+    ->         SET kategori = 'Sedang';
+    ->     ELSEIF harga > 3000000 AND harga <= 10000000 THEN
+    ->         SET kategori = 'Mahal';
+    ->     ELSEIF harga > 10000000 THEN
+    ->         SET kategori = 'Sangat Mahal';
+    ->     ELSE
+    ->         SET kategori = 'Tidak Valid';
+    ->     END IF;
+    ->
+    ->     RETURN kategori;
+    -> END $$
+Query OK, 0 rows affected (0.008 sec)
+
+MariaDB [dbkoperasi]>
+MariaDB [dbkoperasi]> DELIMITER ;
+MariaDB [dbkoperasi]> SELECT nama, harga_jual, kategori_harga(harga_jual) AS kategori
+    -> FROM produk;
++------------------+------------+--------------+
+| nama             | harga_jual | kategori     |
++------------------+------------+--------------+
+| Televisi 21 inch |    5241600 | Mahal        |
+| Televisi 40 inch |    7737600 | Mahal        |
+| Kulkas 2 pintu   |    4867200 | Mahal        |
+| Meja Makan       |     600000 | Sedang       |
+| Teh Kotak        |       3500 | Murah        |
+| PC Desktop HP    |    9600000 | Mahal        |
+| Teh Botol        |       2500 | Murah        |
+| Notebook Acer    |   10800000 | Sangat Mahal |
+| Notebook Lenovo  |   12000000 | Sangat Mahal |
+| Laptop HP        |   13000000 | Sangat Mahal |
+| Produk A         |      15600 | Murah        |
+| Produk B         |      20000 | Murah        |
+| Produk C         |      31200 | Murah        |
++------------------+------------+--------------+
+13 rows in set (0.003 sec)
+
+MariaDB [dbkoperasi]> SELECT kategori_harga(250000);
++------------------------+
+| kategori_harga(250000) |
++------------------------+
+| Murah                  |
++------------------------+
+1 row in set (0.001 sec)
+
+MariaDB [dbkoperasi]> SELECT kategori_harga(7000000);
++-------------------------+
+| kategori_harga(7000000) |
++-------------------------+
+| Mahal                   |
++-------------------------+
+1 row in set (0.001 sec)
+
+MariaDB [dbkoperasi]> SELECT kategori_harga(15000000);
++--------------------------+
+| kategori_harga(15000000) |
++--------------------------+
+| Sangat Mahal             |
++--------------------------+
+1 row in set (0.001 sec)
+
+MariaDB [dbkoperasi]>
